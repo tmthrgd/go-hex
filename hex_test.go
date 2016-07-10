@@ -70,6 +70,39 @@ func TestDecodeOfUC(t *testing.T) {
 	testDecode(t, EncodeUCToString)
 }
 
+func TestDecodeInvalid(t *testing.T) {
+	src := make([]byte, 19)
+	rand.Read(src)
+
+	dst := make([]byte, EncodedLen(len(src)))
+	Encode(dst, src)
+
+	tmp := make([]byte, len(src))
+
+	for pos := 0; pos < len(dst); pos++ {
+		old := dst[pos]
+
+		for c := rune(0); c < rune(0x100); c++ {
+			dst[pos] = byte(c)
+
+			_, err := Decode(tmp, dst)
+			if (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') {
+				if err != nil {
+					t.Errorf("unexpected error for %d:%#U: %v", pos, c, err)
+				}
+			} else if err, ok := err.(InvalidByteError); ok {
+				if byte(err) != byte(c) {
+					t.Errorf("expected error for %d:%#U, got %v", pos, c, err)
+				}
+			} else {
+				t.Errorf("expected error for %d:%#U, got %v", pos, c, err)
+			}
+		}
+
+		dst[pos] = old
+	}
+}
+
 func benchmarkEncode(b *testing.B, l int) {
 	src := make([]byte, l)
 	rand.Read(src)
