@@ -46,10 +46,6 @@ DATA decodeSToUS<>+0x00(SB)/8, $0x8080808080808080
 DATA decodeSToUS<>+0x08(SB)/8, $0x8080808080808080
 GLOBL decodeSToUS<>(SB), RODATA, $16
 
-DATA decodeOnes<>+0x00(SB)/8, $0xffffffffffffffff
-DATA decodeOnes<>+0x08(SB)/8, $0xffffffffffffffff
-GLOBL decodeOnes<>(SB), RODATA, $16
-
 #define VPXOR_SSE(x0, x1, x2) MOVOU x1, x2; PXOR x0, x2
 #define VPXOR_AVX(x0, x1, x2) VPXOR x0, x1, x2
 
@@ -83,7 +79,7 @@ GLOBL decodeOnes<>(SB), RODATA, $16
 	vpcmpgtb_0x20_r15_x3_x5(0x20(R15), X3, X5) \
 	PCMPGTB 0x30(R15), X3 \
 	\
-	PXOR decodeOnes<>(SB), X2 \
+	PXOR X13, X2 \
 	vpand(X4, X5, X7) \
 	\
 	POR X7, X2 \
@@ -132,6 +128,7 @@ TEXT ·decodeASM(SB),NOSPLIT,$0
 
 	MOVQ $6, AX
 
+	PCMPEQL X13, X13
 	MOVOU decodeLow<>(SB), X14
 	MOVQ $decodeValid<>(SB), R15
 
