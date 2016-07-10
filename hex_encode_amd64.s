@@ -64,11 +64,11 @@ TEXT ·encodeASM(SB),NOSPLIT,$0
 BIGLOOP(bigloop_avx, VPAND_AVX, VPSHUFB_AVX)
 
 tail:
-	CMPQ	BX, $2
-	JBE	tail_in_1or2
+	CMPQ BX, $2
+	JBE tail_in_1or2
 
-	CMPQ	BX, $4
-	JBE	tail_in_3or4
+	CMPQ BX, $4
+	JBE tail_in_3or4
 
 tail_in_5through7:
 	MOVL 0(SI), X0
@@ -88,11 +88,11 @@ tail_conv:
 	CONVERT(VPAND_SSE, VPSHUFB_SSE)
 
 tail_out:
-	CMPQ	BX, $2
-	JBE	tail_out_1or2
+	CMPQ BX, $2
+	JBE tail_out_1or2
 
-	CMPQ	BX, $4
-	JBE	tail_out_3or4
+	CMPQ BX, $4
+	JBE tail_out_3or4
 
 tail_out_5through7:
 	PEXTRQ $1, X1, -8(DI)(BX*2)
