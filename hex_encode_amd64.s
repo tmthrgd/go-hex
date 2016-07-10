@@ -19,25 +19,20 @@ GLOBL encodeMask<>(SB), RODATA, $16
 #define VPAND_SSE(x0, x1, x2) MOVOU x1, x2; PAND x0, x2
 #define VPAND_AVX(x0, x1, x2) VPAND x0, x1, x2
 
-#define VPUNPCKLBW_SSE(x0, x1, x2) MOVOU x1, x2; PUNPCKLBW x0, x2
-#define VPUNPCKLBW_AVX(x0, x1, x2) \
-	/* VPUNPCKLBW X1, X0, X2 */ \
-	BYTE $0xc5; BYTE $0xf9; BYTE $0x60; BYTE $0xd1
-
 #define VPUNPCKHBW_SSE(x0, x1, x2) MOVOU x1, x2; PUNPCKHBW x0, x2
 #define VPUNPCKHBW_AVX(x0, x1, x2) \
-	/* VPUNPCKHBW X1, X0, X3 */ \
-	BYTE $0xc5; BYTE $0xf9; BYTE $0x68; BYTE $0xd9
+	/* VPUNPCKHBW X1, X0, X2 */ \
+	BYTE $0xc5; BYTE $0xf9; BYTE $0x68; BYTE $0xd1
 
 #define VPSHUFB_SSE(x0, x1, x2) MOVOU x1, x2; PSHUFB x0, x2
-#define VPSHUFB_AVX_X2_X15_X2(x0, x1, x2) \
-	/* VPSHUFB X2, X15, X0 */ \
-	BYTE $0xc4; BYTE $0xe2; BYTE $0x01; BYTE $0x00; BYTE $0xc2
-#define VPSHUFB_AVX_X3_X15_X3(x0, x1, x2) \
-	/* VPSHUFB X3, X15, X1 */ \
-	BYTE $0xc4; BYTE $0xe2; BYTE $0x01; BYTE $0x00; BYTE $0xcb
+#define VPSHUFB_AVX_X0_X15_X1(x0, x1, x2) \
+	/* VPSHUFB X0, X15, X1 */ \
+	BYTE $0xc4; BYTE $0xe2; BYTE $0x01; BYTE $0x00; BYTE $0xc8
+#define VPSHUFB_AVX_X2_X15_X3(x0, x1, x2) \
+	/* VPSHUFB X2, X15, X3 */ \
+	BYTE $0xc4; BYTE $0xe2; BYTE $0x01; BYTE $0x00; BYTE $0xda
 
-#define BIGLOOP(name, vpand, vpunpcklbw, vpunpckhbw, vpshufb_x2_x15_x2, vpshufb_x3_x15_x3) \
+#define BIGLOOP(name, vpand, vpunpckhbw, vpshufb_x0_x15_x1, vpshufb_x2_x15_x3) \
 name: \
 	MOVOU -16(SI)(BX*1), X0 \
 	\
@@ -46,14 +41,14 @@ name: \
 	PSRLW $4, X0 \
 	PAND encodeMask<>(SB), X0 \
 	\
-	vpunpcklbw(X1, X0, X2) \
-	vpunpckhbw(X1, X0, X3) \
+	vpunpckhbw(X1, X0, X2) \
+	PUNPCKLBW X1, X0 \
 	\
-	vpshufb_x2_x15_x2(X2, X15, X0) \
-	vpshufb_x3_x15_x3(X3, X15, X1) \
+	vpshufb_x0_x15_x1(X0, X15, X1) \
+	vpshufb_x2_x15_x3(X2, X15, X3) \
 	\
-	MOVOU X1, -16(DI)(BX*2) \
-	MOVOU X0, -32(DI)(BX*2) \
+	MOVOU X3, -16(DI)(BX*2) \
+	MOVOU X1, -32(DI)(BX*2) \
 	\
 	SUBQ $16, BX \
 	JZ ret \
@@ -76,7 +71,7 @@ TEXT ·encodeASM(SB),NOSPLIT,$0
 	CMPB runtime·support_avx(SB), $1
 	JNE bigloop_sse
 
-BIGLOOP(bigloop_avx, VPAND_AVX, VPUNPCKLBW_AVX, VPUNPCKHBW_AVX, VPSHUFB_AVX_X2_X15_X2, VPSHUFB_AVX_X3_X15_X3)
+BIGLOOP(bigloop_avx, VPAND_AVX, VPUNPCKHBW_AVX, VPSHUFB_AVX_X0_X15_X1, VPSHUFB_AVX_X2_X15_X3)
 
 loop:
 	PINSRB $0, -1(SI)(BX*1), X0
@@ -99,5 +94,5 @@ loop:
 ret:
 	RET
 
-BIGLOOP(bigloop_sse, VPAND_SSE, VPUNPCKLBW_SSE, VPUNPCKHBW_SSE, VPSHUFB_SSE, VPSHUFB_SSE)
+BIGLOOP(bigloop_sse, VPAND_SSE, VPUNPCKHBW_SSE, VPSHUFB_SSE, VPSHUFB_SSE)
 	JMP loop
