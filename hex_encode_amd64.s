@@ -13,37 +13,52 @@
 #include "textflag.h"
 
 DATA encodeMask<>+0x00(SB)/8, $0x0f0f0f0f0f0f0f0f
+DATA encodeMask<>+0x08(SB)/8, $0x0f0f0f0f0f0f0f0f
 GLOBL encodeMask<>(SB), RODATA, $16
 
 #define VPAND_SSE(x0, x1, x2) MOVOU x1, x2; PAND x0, x2
 #define VPAND_AVX(x0, x1, x2) VPAND x0, x1, x2
 
-#define VPSHUFB_SSE(x0, x1, x2) MOVOU x1, x2; PSHUFB x0, x2
-#define VPSHUFB_AVX(x0, x1, x2) \
-	BYTE $0xc4; BYTE $0xe2; BYTE $0x01; BYTE $0x00; BYTE $0xc8 // VPSHUFB X0, X15, X1
+#define VPUNPCKLBW_SSE(x0, x1, x2) MOVOU x1, x2; PUNPCKLBW x0, x2
+#define VPUNPCKLBW_AVX(x0, x1, x2) \
+	/* VPUNPCKLBW X1, X0, X2 */ \
+	BYTE $0xc5; BYTE $0xf9; BYTE $0x60; BYTE $0xd1
 
-#define CONVERT(vpand, vpshufb) \
+#define VPUNPCKHBW_SSE(x0, x1, x2) MOVOU x1, x2; PUNPCKHBW x0, x2
+#define VPUNPCKHBW_AVX(x0, x1, x2) \
+	/* VPUNPCKHBW X1, X0, X3 */ \
+	BYTE $0xc5; BYTE $0xf9; BYTE $0x68; BYTE $0xd9
+
+#define VPSHUFB_SSE(x0, x1, x2) MOVOU x1, x2; PSHUFB x0, x2
+#define VPSHUFB_AVX_X2_X15_X2(x0, x1, x2) \
+	/* VPSHUFB X2, X15, X0 */ \
+	BYTE $0xc4; BYTE $0xe2; BYTE $0x01; BYTE $0x00; BYTE $0xc2
+#define VPSHUFB_AVX_X3_X15_X3(x0, x1, x2) \
+	/* VPSHUFB X3, X15, X1 */ \
+	BYTE $0xc4; BYTE $0xe2; BYTE $0x01; BYTE $0x00; BYTE $0xcb
+
+#define BIGLOOP(name, vpand, vpunpcklbw, vpunpckhbw, vpshufb_x2_x15_x2, vpshufb_x3_x15_x3) \
+name: \
+	MOVOU -16(SI)(BX*1), X0 \
+	\
 	vpand(encodeMask<>(SB), X0, X1) \
 	\
 	PSRLW $4, X0 \
 	PAND encodeMask<>(SB), X0 \
 	\
-	PUNPCKLBW X1, X0 \
+	vpunpcklbw(X1, X0, X2) \
+	vpunpckhbw(X1, X0, X3) \
 	\
-	vpshufb(X0, X15, X1)
-
-#define BIGLOOP(name, vpand, vpshufb) \
-name: \
-	MOVQ -8(SI)(BX*1), X0 \
-	\
-	CONVERT(vpand, vpshufb) \
+	vpshufb_x2_x15_x2(X2, X15, X0) \
+	vpshufb_x3_x15_x3(X3, X15, X1) \
 	\
 	MOVOU X1, -16(DI)(BX*2) \
+	MOVOU X0, -32(DI)(BX*2) \
 	\
-	SUBQ $8, BX \
+	SUBQ $16, BX \
 	JZ ret \
 	\
-	CMPQ BX, $8 \
+	CMPQ BX, $16 \
 	JAE name
 
 // func encodeASM(*byte, *byte, uint64, *byte)
@@ -55,63 +70,34 @@ TEXT ·encodeASM(SB),NOSPLIT,$0
 
 	MOVOU (DX), X15
 
-	CMPQ BX, $8
-	JB tail
+	CMPQ BX, $16
+	JB loop
 
 	CMPB runtime·support_avx(SB), $1
 	JNE bigloop_sse
 
-BIGLOOP(bigloop_avx, VPAND_AVX, VPSHUFB_AVX)
+BIGLOOP(bigloop_avx, VPAND_AVX, VPUNPCKLBW_AVX, VPUNPCKHBW_AVX, VPSHUFB_AVX_X2_X15_X2, VPSHUFB_AVX_X3_X15_X3)
 
-tail:
-	CMPQ BX, $2
-	JBE tail_in_1or2
+loop:
+	PINSRB $0, -1(SI)(BX*1), X0
 
-	CMPQ BX, $4
-	JBE tail_in_3or4
+	VPAND_SSE(encodeMask<>(SB), X0, X1)
 
-tail_in_5through7:
-	MOVL 0(SI), X0
-	PINSRD $1, -4(SI)(BX*1), X0
-	JMP tail_conv
+	PSRLW $4, X0
+	PAND encodeMask<>(SB), X0
 
-tail_in_3or4:
-	PINSRW $0, 0(SI), X0
-	PINSRW $1, -2(SI)(BX*1), X0
-	JMP tail_conv
+	PUNPCKLBW X1, X0
 
-tail_in_1or2:
-	PINSRB $0, 0(SI), X0
-	PINSRB $1, -1(SI)(BX*1), X0
+	VPSHUFB_SSE(X0, X15, X1)
 
-tail_conv:
-	CONVERT(VPAND_SSE, VPSHUFB_SSE)
+	// PEXTRW $0, X1, -2(DI)(BX*2)
+	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x4c; BYTE $0x5f; BYTE $0xfe; BYTE $0x00
 
-tail_out:
-	CMPQ BX, $2
-	JBE tail_out_1or2
-
-	CMPQ BX, $4
-	JBE tail_out_3or4
-
-tail_out_5through7:
-	PEXTRQ $1, X1, -8(DI)(BX*2)
-	MOVQ X1, 0(DI)
-	RET
-
-tail_out_3or4:
-	PEXTRD $1, X1, -4(DI)(BX*2)
-	MOVL X1, 0(DI)
-	RET
-
-tail_out_1or2:
-	// PEXTRW $1, X1, -2(DI)(BX*2)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x4c; BYTE $0x5f; BYTE $0xfe; BYTE $0x01
-	// PEXTRW $0, X1, 0(DI)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x0f; BYTE $0x00
+	SUBQ $1, BX
+	JNZ loop
 
 ret:
 	RET
 
-BIGLOOP(bigloop_sse, VPAND_SSE, VPSHUFB_SSE)
-	JMP tail
+BIGLOOP(bigloop_sse, VPAND_SSE, VPUNPCKLBW_SSE, VPUNPCKHBW_SSE, VPSHUFB_SSE, VPSHUFB_SSE)
+	JMP loop

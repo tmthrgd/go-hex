@@ -17,14 +17,14 @@ go get github.com/tmthrgd/go-hex
 
 go-hex:
 ```
-BenchmarkEncode_32-8     	100000000	        15.1 ns/op	2118.93 MB/s
-BenchmarkEncode_128-8    	50000000	        26.9 ns/op	4753.35 MB/s
-BenchmarkEncode_1k-8     	10000000	       124 ns/op	8195.22 MB/s
-BenchmarkEncode_16k-8    	 1000000	      1751 ns/op	9352.53 MB/s
-BenchmarkEncode_128k-8   	  100000	     15117 ns/op	8669.98 MB/s
-BenchmarkEncode_1M-8     	   10000	    130449 ns/op	8038.18 MB/s
-BenchmarkEncode_16M-8    	     500	   3599434 ns/op	4661.07 MB/s
-BenchmarkEncode_128M-8   	      50	  28384059 ns/op	4728.63 MB/s
+BenchmarkEncode_32-8     	100000000	        11.9 ns/op	2690.43 MB/s
+BenchmarkEncode_128-8    	100000000	        21.4 ns/op	5982.92 MB/s
+BenchmarkEncode_1k-8     	20000000	        88.5 ns/op	11572.80 MB/s
+BenchmarkEncode_16k-8    	 1000000	      1254 ns/op	13058.10 MB/s
+BenchmarkEncode_128k-8   	  100000	     12965 ns/op	10109.53 MB/s
+BenchmarkEncode_1M-8     	   10000	    119465 ns/op	8777.23 MB/s
+BenchmarkEncode_16M-8    	     500	   3530380 ns/op	4752.24 MB/s
+BenchmarkEncode_128M-8   	      50	  28001913 ns/op	4793.16 MB/s
 BenchmarkDecode_32-8     	100000000	        12.8 ns/op	2496.87 MB/s
 BenchmarkDecode_128-8    	50000000	        28.4 ns/op	4507.07 MB/s
 BenchmarkDecode_1k-8     	10000000	       172 ns/op	5947.97 MB/s
