@@ -59,8 +59,8 @@ GLOBL decodeSToUS<>(SB), RODATA, $16
 
 #define VPANDN_SSE(x0, x1, x2) MOVOU x1, x2; PANDN x0, x2
 #define VPANDN_AVX(x0, x1, x2) \
-	/* VPANDN X4, X5, X7 */ \
-	BYTE $0xc5; BYTE $0xd1; BYTE $0xdf; BYTE $0xfc
+	/* VPANDN X4, X5, X6 */ \
+	BYTE $0xc5; BYTE $0xd1; BYTE $0xdf; BYTE $0xf4
 
 #define VPSHUFB_SSE(x0, x1, x2) MOVOU x1, x2; PSHUFB x0, x2
 #define VPSHUFB_AVX(x0, x1, x2) \
@@ -80,9 +80,9 @@ GLOBL decodeSToUS<>(SB), RODATA, $16
 	PCMPGTB 0x30(R15), X3 \
 	\
 	PXOR X13, X2 \
-	vpandn(X4, X5, X7) \
+	vpandn(X4, X5, X6) \
 	\
-	POR X7, X2 \
+	POR X6, X2 \
 	POR X3, X2 \
 	\
 	PMOVMSKB X2, AX \
