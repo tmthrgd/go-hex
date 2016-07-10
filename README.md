@@ -25,14 +25,14 @@ BenchmarkEncode_128k-8   	  100000	     15117 ns/op	8669.98 MB/s
 BenchmarkEncode_1M-8     	   10000	    130449 ns/op	8038.18 MB/s
 BenchmarkEncode_16M-8    	     500	   3599434 ns/op	4661.07 MB/s
 BenchmarkEncode_128M-8   	      50	  28384059 ns/op	4728.63 MB/s
-BenchmarkDecode_32-8     	100000000	        12.5 ns/op	2565.07 MB/s
-BenchmarkDecode_128-8    	50000000	        30.5 ns/op	4196.22 MB/s
-BenchmarkDecode_1k-8     	10000000	       197 ns/op	5189.36 MB/s
-BenchmarkDecode_16k-8    	  500000	      3077 ns/op	5323.19 MB/s
-BenchmarkDecode_128k-8   	   50000	     24383 ns/op	5375.39 MB/s
-BenchmarkDecode_1M-8     	   10000	    194553 ns/op	5389.66 MB/s
-BenchmarkDecode_16M-8    	     500	   3475647 ns/op	4827.08 MB/s
-BenchmarkDecode_128M-8   	      50	  28513252 ns/op	4707.21 MB/s
+BenchmarkDecode_32-8     	100000000	        12.8 ns/op	2496.87 MB/s
+BenchmarkDecode_128-8    	50000000	        28.4 ns/op	4507.07 MB/s
+BenchmarkDecode_1k-8     	10000000	       172 ns/op	5947.97 MB/s
+BenchmarkDecode_16k-8    	  500000	      2682 ns/op	6107.70 MB/s
+BenchmarkDecode_128k-8   	  100000	     21429 ns/op	6116.44 MB/s
+BenchmarkDecode_1M-8     	   10000	    173972 ns/op	6027.25 MB/s
+BenchmarkDecode_16M-8    	     500	   3269415 ns/op	5131.57 MB/s
+BenchmarkDecode_128M-8   	      50	  26166829 ns/op	5129.31 MB/s
 ```
 
 [encoding/hex](https://golang.org/pkg/encoding/hex/):
