@@ -67,7 +67,7 @@ GLOBL decodeSToUS<>(SB), RODATA, $16
 	/* VPSHUFB X14, X1, X2 */ \
 	BYTE $0xc4; BYTE $0xc2; BYTE $0x71; BYTE $0x00; BYTE $0xd6
 
-#define CONVERT(vpxor, vpcmpgtb_0x10_r15_x3_x4, vpcmpgtb_0x20_r15_x3_x5, vpand, vpshufb) \
+#define CONVERT(vpxor, vpcmpgtb_0x10_r15_x3_x4, vpcmpgtb_0x20_r15_x3_x5, vpandn, vpshufb) \
 	vpxor(decodeSToUS<>(SB), X1, X2) \
 	\
 	POR decodeToLower<>(SB), X1 \
@@ -80,7 +80,7 @@ GLOBL decodeSToUS<>(SB), RODATA, $16
 	PCMPGTB 0x30(R15), X3 \
 	\
 	PXOR X13, X2 \
-	vpand(X4, X5, X7) \
+	vpandn(X4, X5, X7) \
 	\
 	POR X7, X2 \
 	POR X3, X2 \
@@ -101,11 +101,11 @@ GLOBL decodeSToUS<>(SB), RODATA, $16
 	PSLLW $4, X1 \
 	POR X2, X1
 
-#define BIGLOOP(name, vpxor, vpcmpgtb_0x10_r15_x3_x4, vpcmpgtb_0x20_r15_x3_x5, vpand, vpshufb) \
+#define BIGLOOP(name, vpxor, vpcmpgtb_0x10_r15_x3_x4, vpcmpgtb_0x20_r15_x3_x5, vpandn, vpshufb) \
 name: \
 	MOVOU (SI), X1 \
 	\
-	CONVERT(vpxor, vpcmpgtb_0x10_r15_x3_x4, vpcmpgtb_0x20_r15_x3_x5, vpand, vpshufb) \
+	CONVERT(vpxor, vpcmpgtb_0x10_r15_x3_x4, vpcmpgtb_0x20_r15_x3_x5, vpandn, vpshufb) \
 	\
 	MOVQ X1, (DI) \
 	\
