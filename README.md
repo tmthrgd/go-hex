@@ -17,7 +17,7 @@ go get github.com/tmthrgd/go-hex
 
 go-hex:
 ```
-BenchmarkEncode_15-8     	50000000	        31.8 ns/op	 471.69 MB/s
+BenchmarkEncode_15-8     	100000000	        17.4 ns/op	 863.43 MB/s
 BenchmarkEncode_32-8     	100000000	        11.9 ns/op	2690.43 MB/s
 BenchmarkEncode_128-8    	100000000	        21.4 ns/op	5982.92 MB/s
 BenchmarkEncode_1k-8     	20000000	        88.5 ns/op	11572.80 MB/s
@@ -62,7 +62,7 @@ BenchmarkRefDecode_128M-8	       2	 933871637 ns/op	 143.72 MB/s
 [encoding/hex](https://golang.org/pkg/encoding/hex/) -> go-hex:
 ```
 benchmark                  old ns/op     new ns/op     delta
-BenchmarkEncode_15-8       36.1          31.8          -11.91%
+BenchmarkEncode_15-8       36.1          17.4          -51.80%
 BenchmarkEncode_32-8       72.9          11.9          -83.68%
 BenchmarkEncode_128-8      289           21.4          -92.60%
 BenchmarkEncode_1k-8       2268          88.5          -96.10%
@@ -82,7 +82,7 @@ BenchmarkDecode_16M-8      116574839     3099822       -97.34%
 BenchmarkDecode_128M-8     933871637     24865822      -97.34%
 
 benchmark                  old MB/s     new MB/s     speedup
-BenchmarkEncode_15-8       415.07       471.27       1.14x
+BenchmarkEncode_15-8       415.07       863.43       2.08x
 BenchmarkEncode_32-8       439.14       2690.43      6.13x
 BenchmarkEncode_128-8      441.54       5982.92      13.55x
 BenchmarkEncode_1k-8       451.49       11572.80     25.63x
