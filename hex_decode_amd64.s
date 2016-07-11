@@ -157,7 +157,8 @@ tail_in_12:
 tail_in_10:
 	PINSRW $4, 8(SI), X1
 tail_in_8:
-	PINSRW $3, 6(SI), X1
+	PINSRQ $0, 0(SI), X1
+	JMP tail_conv
 tail_in_6:
 	PINSRW $2, 4(SI), X1
 tail_in_4:
@@ -165,6 +166,7 @@ tail_in_4:
 tail_in_2:
 	PINSRW $0, 0(SI), X1
 
+tail_conv:
 	CONVERT(VPXOR_SSE, VPCMPGTB_SSE, VPCMPGTB_SSE, VPSHUFB_SSE)
 
 	CMPQ BX, $4
@@ -186,7 +188,8 @@ tail_out_12:
 tail_out_10:
 	PEXTRB $4, X1, 4(DI)
 tail_out_8:
-	PEXTRB $3, X1, 3(DI)
+	MOVL X1, 0(DI)
+	JMP ret
 tail_out_6:
 	PEXTRB $2, X1, 2(DI)
 tail_out_4:
