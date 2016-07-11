@@ -50,29 +50,29 @@ GLOBL decodeSToUS<>(SB), RODATA, $16
 #define VPXOR_AVX(x0, x1, x2) VPXOR x0, x1, x2
 
 #define VPCMPGTB_SSE(x0, x1, x2) MOVOU x1, x2; PCMPGTB x0, x2
-#define VPCMPGTB_AVX_X0_X12_X2(x0, x1, x2) \
-	/* VPCMPGTB X0, X12, X2 */ \
-	BYTE $0xc5; BYTE $0x99; BYTE $0x64; BYTE $0xd0
-#define VPCMPGTB_AVX_X3_X13_X5(x0, x1, x2) \
-	/* VPCMPGTB X3, X13, X5 */ \
-	BYTE $0xc5; BYTE $0x91; BYTE $0x64; BYTE $0xeb
+#define VPCMPGTB_AVX_X0_X13_X2(x0, x1, x2) \
+	/* VPCMPGTB X0, X13, X2 */ \
+	BYTE $0xc5; BYTE $0x91; BYTE $0x64; BYTE $0xd0
+#define VPCMPGTB_AVX_X3_X14_X5(x0, x1, x2) \
+	/* VPCMPGTB X3, X14, X5 */ \
+	BYTE $0xc5; BYTE $0x89; BYTE $0x64; BYTE $0xeb
 
 #define VPSHUFB_SSE(x0, x1, x2) MOVOU x1, x2; PSHUFB x0, x2
 #define VPSHUFB_AVX(x0, x1, x2) \
-	/* VPSHUFB X14, X1, X2 */ \
-	BYTE $0xc4; BYTE $0xc2; BYTE $0x71; BYTE $0x00; BYTE $0xd6
+	/* VPSHUFB X15, X1, X2 */ \
+	BYTE $0xc4; BYTE $0xc2; BYTE $0x71; BYTE $0x00; BYTE $0xd7
 
-#define CONVERT(vpxor, vpcmpgtb_x0_x12_x2, vpcmpgtb_x3_x13_x5, vpshufb) \
+#define CONVERT(vpxor, vpcmpgtb_x0_x13_x2, vpcmpgtb_x3_x14_x5, vpshufb) \
 	vpxor(decodeSToUS<>(SB), X1, X0) \
 	\
 	POR decodeToLower<>(SB), X1 \
 	\
 	vpxor(decodeSToUS<>(SB), X1, X3) \
 	\
-	vpcmpgtb_x0_x12_x2(X0, X12, X2) \
-	PCMPGTB 0x10(R15), X0 \
-	vpcmpgtb_x3_x13_x5(X3, X13, X5) \
-	PCMPGTB 0x30(R15), X3 \
+	vpcmpgtb_x0_x13_x2(X0, X13, X2) \
+	PCMPGTB decodeValid<>+0x10(SB), X0 \
+	vpcmpgtb_x3_x14_x5(X3, X14, X5) \
+	PCMPGTB decodeValid<>+0x30(SB), X3 \
 	\
 	PAND X5, X0 \
 	POR X3, X2 \
@@ -88,17 +88,17 @@ GLOBL decodeSToUS<>(SB), RODATA, $16
 	PANDN decodeBase<>(SB), X5 \
 	PSUBB X5, X1 \
 	\
-	vpshufb(X14, X1, X2) \
+	vpshufb(X15, X1, X2) \
 	PSHUFB decodeHigh<>(SB), X1 \
 	\
 	PSLLW $4, X1 \
 	POR X2, X1
 
-#define BIGLOOP(name, vpxor, vpcmpgtb_x0_x12_x2, vpcmpgtb_x3_x13_x5, vpshufb) \
+#define BIGLOOP(name, vpxor, vpcmpgtb_x0_x13_x2, vpcmpgtb_x3_x14_x5, vpshufb) \
 name: \
 	MOVOU (SI), X1 \
 	\
-	CONVERT(vpxor, vpcmpgtb_x0_x12_x2, vpcmpgtb_x3_x13_x5, vpshufb) \
+	CONVERT(vpxor, vpcmpgtb_x0_x13_x2, vpcmpgtb_x3_x14_x5, vpshufb) \
 	\
 	MOVQ X1, (DI) \
 	\
@@ -117,14 +117,13 @@ TEXT ·decodeASM(SB),NOSPLIT,$0
 	MOVQ src+8(FP), SI
 	MOVQ len+16(FP), BX
 
-	MOVQ SI, R14
+	MOVQ SI, R15
 
 	MOVQ $6, AX
 
-	MOVOU decodeValid<>+0x00(SB), X12
-	MOVOU decodeValid<>+0x20(SB), X13
-	MOVOU decodeLow<>(SB), X14
-	MOVQ $decodeValid<>(SB), R15
+	MOVOU decodeValid<>+0x00(SB), X13
+	MOVOU decodeValid<>+0x20(SB), X14
+	MOVOU decodeLow<>(SB), X15
 
 	CMPQ BX, $16
 	JB loop_preheader
@@ -134,7 +133,7 @@ TEXT ·decodeASM(SB),NOSPLIT,$0
 	CMPB runtime·support_avx(SB), $1
 	JNE bigloop_sse
 
-BIGLOOP(bigloop_avx, VPXOR_AVX, VPCMPGTB_AVX_X0_X12_X2, VPCMPGTB_AVX_X3_X13_X5, VPSHUFB_AVX)
+BIGLOOP(bigloop_avx, VPXOR_AVX, VPCMPGTB_AVX_X0_X13_X2, VPCMPGTB_AVX_X3_X14_X5, VPSHUFB_AVX)
 
 loop_preheader:
 	MOVW $0x0003, DX
@@ -159,7 +158,7 @@ ret:
 invalid:
 	BSFW AX, AX
 
-	SUBQ R14, SI
+	SUBQ R15, SI
 	ADDQ SI, AX
 
 	MOVQ AX, n+24(FP)
