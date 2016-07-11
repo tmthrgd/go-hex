@@ -14,12 +14,12 @@ import (
 	"testing/quick"
 )
 
-func testEncode(t *testing.T, enc, ref func([]byte) string, scale float64) {
+func testEncode(t *testing.T, enc, ref func([]byte) string, scale float64, maxsize int) {
 	if err := quick.CheckEqual(ref, enc, &quick.Config{
 		Values: func(args []reflect.Value, rand *rand.Rand) {
 			off := rand.Intn(32)
 
-			data := make([]byte, 1+rand.Intn(1024*1024)+off)
+			data := make([]byte, 1+rand.Intn(maxsize)+off)
 			rand.Read(data[off:])
 			args[0] = reflect.ValueOf(data[off:])
 		},
@@ -30,17 +30,21 @@ func testEncode(t *testing.T, enc, ref func([]byte) string, scale float64) {
 	}
 }
 
+func TestEncodeShort(t *testing.T) {
+	testEncode(t, EncodeToString, ref.EncodeToString, 1000, 15)
+}
+
 func TestEncode(t *testing.T) {
-	testEncode(t, EncodeToString, ref.EncodeToString, 1.5)
+	testEncode(t, EncodeToString, ref.EncodeToString, 1.5, 1024*1024)
 }
 
 func TestEncodeUC(t *testing.T) {
 	testEncode(t, EncodeUCToString, func(src []byte) string {
 		return strings.ToUpper(ref.EncodeToString(src))
-	}, 0.375)
+	}, 0.375, 1024*1024)
 }
 
-func testDecode(t *testing.T, enc func([]byte) string) {
+func testDecode(t *testing.T, enc func([]byte) string, scale float64, maxsize int) {
 	if err := quick.CheckEqual(func(s string) (string, error) {
 		return s, nil
 	}, func(s string) (string, error) {
@@ -50,24 +54,28 @@ func testDecode(t *testing.T, enc func([]byte) string) {
 		Values: func(args []reflect.Value, rand *rand.Rand) {
 			off := rand.Intn(32)
 
-			src := make([]byte, 1+rand.Intn(1024*1024)+off)
+			src := make([]byte, 1+rand.Intn(maxsize)+off)
 			rand.Read(src)
 			data := enc(src)
 			args[0] = reflect.ValueOf(data[2*off:])
 		},
 
-		MaxCountScale: 2,
+		MaxCountScale: scale,
 	}); err != nil {
 		t.Error(err)
 	}
 }
 
+func TestDecdeShort(t *testing.T) {
+	testDecode(t, EncodeToString, 1000, 7)
+}
+
 func TestDecode(t *testing.T) {
-	testDecode(t, EncodeToString)
+	testDecode(t, EncodeToString, 2, 1024*1024)
 }
 
 func TestDecodeOfUC(t *testing.T) {
-	testDecode(t, EncodeUCToString)
+	testDecode(t, EncodeUCToString, 2, 1024*1024)
 }
 
 func TestDecodeInvalid(t *testing.T) {
