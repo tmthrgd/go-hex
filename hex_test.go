@@ -117,6 +117,10 @@ func benchmarkEncode(b *testing.B, l int) {
 	}
 }
 
+func BenchmarkEncode_15(b *testing.B) {
+	benchmarkEncode(b, 15)
+}
+
 func BenchmarkEncode_32(b *testing.B) {
 	benchmarkEncode(b, 32)
 }
@@ -161,6 +165,10 @@ func benchmarkRefEncode(b *testing.B, l int) {
 	for i := 0; i < b.N; i++ {
 		ref.Encode(dst, src)
 	}
+}
+
+func BenchmarkRefEncode_15(b *testing.B) {
+	benchmarkRefEncode(b, 15)
 }
 
 func BenchmarkRefEncode_32(b *testing.B) {
@@ -212,6 +220,10 @@ func benchmarkDecode(b *testing.B, l int) {
 	}
 }
 
+func BenchmarkDecode_14(b *testing.B) {
+	benchmarkDecode(b, 14)
+}
+
 func BenchmarkDecode_32(b *testing.B) {
 	benchmarkDecode(b, 32)
 }
@@ -259,6 +271,10 @@ func benchmarkRefDecode(b *testing.B, l int) {
 	for i := 0; i < b.N; i++ {
 		ref.Decode(dst, src)
 	}
+}
+
+func BenchmarkRefDecode_14(b *testing.B) {
+	benchmarkRefDecode(b, 14)
 }
 
 func BenchmarkRefDecode_32(b *testing.B) {
