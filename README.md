@@ -26,7 +26,7 @@ BenchmarkEncode_128k-8   	  100000	     12965 ns/op	10109.53 MB/s
 BenchmarkEncode_1M-8     	   10000	    119465 ns/op	8777.23 MB/s
 BenchmarkEncode_16M-8    	     500	   3530380 ns/op	4752.24 MB/s
 BenchmarkEncode_128M-8   	      50	  28001913 ns/op	4793.16 MB/s
-BenchmarkDecode_14-8     	50000000	        31.5 ns/op	 443.95 MB/s
+BenchmarkDecode_14-8     	100000000	        14.1 ns/op	 993.78 MB/s
 BenchmarkDecode_32-8     	100000000	        12.5 ns/op	2558.10 MB/s
 BenchmarkDecode_128-8    	50000000	        27.2 ns/op	4697.66 MB/s
 BenchmarkDecode_1k-8     	10000000	       168 ns/op	6093.43 MB/s
@@ -71,7 +71,7 @@ BenchmarkEncode_128k-8     291260        12965         -95.55%
 BenchmarkEncode_1M-8       2277578       119465        -94.75%
 BenchmarkEncode_16M-8      37087543      3530380       -90.48%
 BenchmarkEncode_128M-8     293611713     28001913      -90.46%
-BenchmarkDecode_14-8       53.7          31.5          -41.34%
+BenchmarkDecode_14-8       53.7          14.1          -73.74%
 BenchmarkDecode_32-8       128           12.5          -90.23%
 BenchmarkDecode_128-8      481           27.2          -94.35%
 BenchmarkDecode_1k-8       4172          168           -95.97%
@@ -91,7 +91,7 @@ BenchmarkEncode_128k-8     450.02       10109.53     22.46x
 BenchmarkEncode_1M-8       460.39       8777.23      19.06x
 BenchmarkEncode_16M-8      452.37       4752.24      10.51x
 BenchmarkEncode_128M-8     457.13       4793.16      10.49x
-BenchmarkDecode_14-8       260.49       443.86       1.70x
+BenchmarkDecode_14-8       260.49       993.78       3.82x
 BenchmarkDecode_32-8       248.44       2558.10      10.30x
 BenchmarkDecode_128-8      265.95       4697.66      17.66x
 BenchmarkDecode_1k-8       245.43       6093.43      24.83x

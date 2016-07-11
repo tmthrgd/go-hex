@@ -119,37 +119,80 @@ TEXT ·decodeASM(SB),NOSPLIT,$0
 
 	MOVQ SI, R15
 
-	MOVQ $6, AX
+	MOVW $0xffff, DX
 
 	MOVOU decodeValid<>+0x00(SB), X13
 	MOVOU decodeValid<>+0x20(SB), X14
 	MOVOU decodeLow<>(SB), X15
 
 	CMPQ BX, $16
-	JB loop_preheader
-
-	MOVW $0xffff, DX
+	JB tail
 
 	CMPB runtime·support_avx(SB), $1
 	JNE bigloop_sse
 
 BIGLOOP(bigloop_avx, VPXOR_AVX, VPCMPGTB_AVX_X0_X13_X2, VPCMPGTB_AVX_X3_X14_X5, VPSHUFB_AVX)
 
-loop_preheader:
-	MOVW $0x0003, DX
+tail:
+	MOVQ $16, CX
+	SUBQ BX, CX
+	SHRW CX, DX
 
-loop:
-	PINSRW $0, (SI), X1
+	CMPQ BX, $4
+	JB tail_in_2
+	JEQ tail_in_4
+
+	CMPQ BX, $8
+	JB tail_in_6
+	JEQ tail_in_8
+
+	CMPQ BX, $12
+	JB tail_in_10
+	JEQ tail_in_12
+
+tail_in_14:
+	PINSRW $6, 12(SI), X1
+tail_in_12:
+	PINSRW $5, 10(SI), X1
+tail_in_10:
+	PINSRW $4, 8(SI), X1
+tail_in_8:
+	PINSRW $3, 6(SI), X1
+tail_in_6:
+	PINSRW $2, 4(SI), X1
+tail_in_4:
+	PINSRW $1, 2(SI), X1
+tail_in_2:
+	PINSRW $0, 0(SI), X1
 
 	CONVERT(VPXOR_SSE, VPCMPGTB_SSE, VPCMPGTB_SSE, VPSHUFB_SSE)
 
-	PEXTRB $0, X1, (DI)
+	CMPQ BX, $4
+	JB tail_out_2
+	JEQ tail_out_4
 
-	ADDQ $2, SI
-	INCQ DI
+	CMPQ BX, $8
+	JB tail_out_6
+	JEQ tail_out_8
 
-	SUBQ $2, BX
-	JNZ loop
+	CMPQ BX, $12
+	JB tail_out_10
+	JEQ tail_out_12
+
+tail_out_14:
+	PEXTRB $6, X1, 6(DI)
+tail_out_12:
+	PEXTRB $5, X1, 5(DI)
+tail_out_10:
+	PEXTRB $4, X1, 4(DI)
+tail_out_8:
+	PEXTRB $3, X1, 3(DI)
+tail_out_6:
+	PEXTRB $2, X1, 2(DI)
+tail_out_4:
+	PEXTRB $1, X1, 1(DI)
+tail_out_2:
+	PEXTRB $0, X1, 0(DI)
 
 ret:
 	MOVB $1, ok+32(FP)
@@ -166,4 +209,4 @@ invalid:
 	RET
 
 BIGLOOP(bigloop_sse, VPXOR_SSE, VPCMPGTB_SSE, VPCMPGTB_SSE, VPSHUFB_SSE)
-	JMP loop_preheader
+	JMP tail
