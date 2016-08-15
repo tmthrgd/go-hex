@@ -44,6 +44,8 @@ func Decode(dst, src []byte) (int, error) {
 	return len(src) / 2, nil
 }
 
+//go:generate go run asm_gen.go
+
 // This function is implemented in hex_encode_amd64.s
 //go:noescape
 func encodeASM(dst *byte, src *byte, len uint64, alpha *byte)
