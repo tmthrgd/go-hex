@@ -111,208 +111,109 @@ func TestDecodeInvalid(t *testing.T) {
 	}
 }
 
-func benchmarkEncode(b *testing.B, l int) {
-	src := make([]byte, l)
-	rand.Read(src)
+type size struct {
+	name string
+	l    int
+}
 
-	dst := make([]byte, EncodedLen(l))
+var encodeSize = []size{
+	{"15", 15},
+	{"32", 32},
+	{"128", 128},
+	{"1K", 1 * 1024},
+	{"16K", 16 * 1024},
+	{"128K", 128 * 1024},
+	{"1M", 1024 * 1024},
+	{"16M", 16 * 1024 * 1024},
+	{"128M", 128 * 1024 * 1024},
+}
 
-	b.SetBytes(int64(l))
-	b.ResetTimer()
+func BenchmarkEncode(b *testing.B) {
+	for _, size := range encodeSize {
+		b.Run(size.name, func(b *testing.B) {
+			src := make([]byte, size.l)
+			rand.Read(src)
 
-	for i := 0; i < b.N; i++ {
-		Encode(dst, src)
+			dst := make([]byte, EncodedLen(size.l))
+
+			b.SetBytes(int64(size.l))
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				Encode(dst, src)
+			}
+		})
 	}
 }
 
-func BenchmarkEncode_15(b *testing.B) {
-	benchmarkEncode(b, 15)
-}
+func BenchmarkRefEncode(b *testing.B) {
+	for _, size := range encodeSize {
+		b.Run(size.name, func(b *testing.B) {
+			src := make([]byte, size.l)
+			rand.Read(src)
 
-func BenchmarkEncode_32(b *testing.B) {
-	benchmarkEncode(b, 32)
-}
+			dst := make([]byte, ref.EncodedLen(size.l))
 
-func BenchmarkEncode_128(b *testing.B) {
-	benchmarkEncode(b, 128)
-}
+			b.SetBytes(int64(size.l))
+			b.ResetTimer()
 
-func BenchmarkEncode_1k(b *testing.B) {
-	benchmarkEncode(b, 1*1024)
-}
-
-func BenchmarkEncode_16k(b *testing.B) {
-	benchmarkEncode(b, 16*1024)
-}
-
-func BenchmarkEncode_128k(b *testing.B) {
-	benchmarkEncode(b, 128*1024)
-}
-
-func BenchmarkEncode_1M(b *testing.B) {
-	benchmarkEncode(b, 1024*1024)
-}
-
-func BenchmarkEncode_16M(b *testing.B) {
-	benchmarkEncode(b, 16*1024*1024)
-}
-
-func BenchmarkEncode_128M(b *testing.B) {
-	benchmarkEncode(b, 128*1024*1024)
-}
-
-func benchmarkRefEncode(b *testing.B, l int) {
-	src := make([]byte, l)
-	rand.Read(src)
-
-	dst := make([]byte, ref.EncodedLen(l))
-
-	b.SetBytes(int64(l))
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		ref.Encode(dst, src)
+			for i := 0; i < b.N; i++ {
+				ref.Encode(dst, src)
+			}
+		})
 	}
 }
 
-func BenchmarkRefEncode_15(b *testing.B) {
-	benchmarkRefEncode(b, 15)
+var decodeSize = []size{
+	{"14", 14},
+	{"32", 32},
+	{"128", 128},
+	{"1K", 1 * 1024},
+	{"16K", 16 * 1024},
+	{"128K", 128 * 1024},
+	{"1M", 1024 * 1024},
+	{"16M", 16 * 1024 * 1024},
+	{"128M", 128 * 1024 * 1024},
 }
 
-func BenchmarkRefEncode_32(b *testing.B) {
-	benchmarkRefEncode(b, 32)
-}
+func BenchmarkDecode(b *testing.B) {
+	for _, size := range decodeSize {
+		b.Run(size.name, func(b *testing.B) {
+			m := DecodedLen(size.l)
 
-func BenchmarkRefEncode_128(b *testing.B) {
-	benchmarkRefEncode(b, 128)
-}
+			src := make([]byte, size.l)
+			rand.Read(src[:m])
+			Encode(src, src[:m])
 
-func BenchmarkRefEncode_1k(b *testing.B) {
-	benchmarkRefEncode(b, 1*1024)
-}
+			dst := make([]byte, m)
 
-func BenchmarkRefEncode_16k(b *testing.B) {
-	benchmarkRefEncode(b, 16*1024)
-}
+			b.SetBytes(int64(size.l))
+			b.ResetTimer()
 
-func BenchmarkRefEncode_128k(b *testing.B) {
-	benchmarkRefEncode(b, 128*1024)
-}
-
-func BenchmarkRefEncode_1M(b *testing.B) {
-	benchmarkRefEncode(b, 1024*1024)
-}
-
-func BenchmarkRefEncode_16M(b *testing.B) {
-	benchmarkRefEncode(b, 16*1024*1024)
-}
-
-func BenchmarkRefEncode_128M(b *testing.B) {
-	benchmarkRefEncode(b, 128*1024*1024)
-}
-
-func benchmarkDecode(b *testing.B, l int) {
-	m := DecodedLen(l)
-
-	src := make([]byte, l)
-	rand.Read(src[:m])
-	Encode(src, src[:m])
-
-	dst := make([]byte, m)
-
-	b.SetBytes(int64(l))
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		Decode(dst, src)
+			for i := 0; i < b.N; i++ {
+				Decode(dst, src)
+			}
+		})
 	}
-}
-
-func BenchmarkDecode_14(b *testing.B) {
-	benchmarkDecode(b, 14)
-}
-
-func BenchmarkDecode_32(b *testing.B) {
-	benchmarkDecode(b, 32)
-}
-
-func BenchmarkDecode_128(b *testing.B) {
-	benchmarkDecode(b, 128)
-}
-
-func BenchmarkDecode_1k(b *testing.B) {
-	benchmarkDecode(b, 1*1024)
-}
-
-func BenchmarkDecode_16k(b *testing.B) {
-	benchmarkDecode(b, 16*1024)
-}
-
-func BenchmarkDecode_128k(b *testing.B) {
-	benchmarkDecode(b, 128*1024)
-}
-
-func BenchmarkDecode_1M(b *testing.B) {
-	benchmarkDecode(b, 1024*1024)
-}
-
-func BenchmarkDecode_16M(b *testing.B) {
-	benchmarkDecode(b, 16*1024*1024)
-}
-
-func BenchmarkDecode_128M(b *testing.B) {
-	benchmarkDecode(b, 128*1024*1024)
 }
 
 func benchmarkRefDecode(b *testing.B, l int) {
-	m := ref.DecodedLen(l)
+	for _, size := range decodeSize {
+		b.Run(size.name, func(b *testing.B) {
+			m := ref.DecodedLen(size.l)
 
-	src := make([]byte, l)
-	rand.Read(src[:m])
-	Encode(src, src[:m])
+			src := make([]byte, size.l)
+			rand.Read(src[:m])
+			Encode(src, src[:m])
 
-	dst := make([]byte, m)
+			dst := make([]byte, m)
 
-	b.SetBytes(int64(l))
-	b.ResetTimer()
+			b.SetBytes(int64(size.l))
+			b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
-		ref.Decode(dst, src)
+			for i := 0; i < b.N; i++ {
+				ref.Decode(dst, src)
+			}
+		})
 	}
-}
-
-func BenchmarkRefDecode_14(b *testing.B) {
-	benchmarkRefDecode(b, 14)
-}
-
-func BenchmarkRefDecode_32(b *testing.B) {
-	benchmarkRefDecode(b, 32)
-}
-
-func BenchmarkRefDecode_128(b *testing.B) {
-	benchmarkRefDecode(b, 128)
-}
-
-func BenchmarkRefDecode_1k(b *testing.B) {
-	benchmarkRefDecode(b, 1*1024)
-}
-
-func BenchmarkRefDecode_16k(b *testing.B) {
-	benchmarkRefDecode(b, 16*1024)
-}
-
-func BenchmarkRefDecode_128k(b *testing.B) {
-	benchmarkRefDecode(b, 128*1024)
-}
-
-func BenchmarkRefDecode_1M(b *testing.B) {
-	benchmarkRefDecode(b, 1024*1024)
-}
-
-func BenchmarkRefDecode_16M(b *testing.B) {
-	benchmarkRefDecode(b, 16*1024*1024)
-}
-
-func BenchmarkRefDecode_128M(b *testing.B) {
-	benchmarkRefDecode(b, 128*1024*1024)
 }
