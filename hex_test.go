@@ -66,7 +66,7 @@ func testDecode(t *testing.T, enc func([]byte) string, scale float64, maxsize in
 	}
 }
 
-func TestDecdeShort(t *testing.T) {
+func TestDecodeShort(t *testing.T) {
 	testDecode(t, EncodeToString, 1000, 7)
 }
 
