@@ -111,6 +111,35 @@ func TestDecodeInvalid(t *testing.T) {
 	}
 }
 
+func catchPanic(fn func()) (e interface{}) {
+	defer func() { e = recover() }()
+	fn()
+	return nil
+}
+
+func TestDstTooShort(t *testing.T) {
+	dst := make([]byte, 10)
+	src := make([]byte, 100)
+
+	for i := range src {
+		src[i] = '0'
+	}
+
+	if catchPanic(func() {
+		Encode(dst, src)
+	}) == nil {
+		t.Fatal("did not catch encode into small dst buffer")
+	}
+
+	if catchPanic(func() {
+		if _, err := Decode(dst, src); err != nil {
+			t.Fatal(err)
+		}
+	}) == nil {
+		t.Fatal("did not catch decode into small dst buffer")
+	}
+}
+
 type size struct {
 	name string
 	l    int
