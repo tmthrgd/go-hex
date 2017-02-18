@@ -140,6 +140,14 @@ func TestDstTooShort(t *testing.T) {
 	}
 }
 
+func TestInvalidAlphabetSize(t *testing.T) {
+	if err := catchPanic(func() {
+		RawEncode(nil, nil, nil)
+	}); err != "invalid alphabet" {
+		t.Fatal("did not catch invalid alphabet size")
+	}
+}
+
 type size struct {
 	name string
 	l    int
