@@ -15,8 +15,7 @@ import (
 	"fmt"
 )
 
-// ErrLength results from decoding an odd length slice.
-var ErrLength = errors.New("go-hex: odd length hex string")
+var errLength = errors.New("go-hex: odd length hex string")
 
 var (
 	lower = []byte("0123456789abcdef")
