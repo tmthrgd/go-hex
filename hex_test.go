@@ -38,8 +38,8 @@ func TestEncode(t *testing.T) {
 	testEncode(t, EncodeToString, ref.EncodeToString, 1.5, 1024*1024)
 }
 
-func TestEncodeUC(t *testing.T) {
-	testEncode(t, EncodeUCToString, func(src []byte) string {
+func TestEncodeUpper(t *testing.T) {
+	testEncode(t, EncodeUpperToString, func(src []byte) string {
 		return strings.ToUpper(ref.EncodeToString(src))
 	}, 0.375, 1024*1024)
 }
@@ -74,8 +74,8 @@ func TestDecode(t *testing.T) {
 	testDecode(t, EncodeToString, 2, 1024*1024)
 }
 
-func TestDecodeOfUC(t *testing.T) {
-	testDecode(t, EncodeUCToString, 2, 1024*1024)
+func TestDecodeUpper(t *testing.T) {
+	testDecode(t, EncodeUpperToString, 2, 1024*1024)
 }
 
 func TestDecodeInvalid(t *testing.T) {
