@@ -100,26 +100,26 @@ tail_out_8:
 	ADDQ $16, DI
 	JMP tail
 tail_out_7:
-	// PEXTRW $6, X1, 12(DI)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x4f; BYTE $0x0c; BYTE $0x06
+	PEXTRB $13, X1, 13(DI)
+	PEXTRB $12, X1, 12(DI)
 tail_out_6:
-	// PEXTRW $5, X1, 10(DI)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x4f; BYTE $0x0a; BYTE $0x05
+	PEXTRB $11, X1, 11(DI)
+	PEXTRB $10, X1, 10(DI)
 tail_out_5:
-	// PEXTRW $4, X1, 8(DI)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x4f; BYTE $0x08; BYTE $0x04
+	PEXTRB $9, X1, 9(DI)
+	PEXTRB $8, X1, 8(DI)
 tail_out_4:
 	MOVQ X1, (DI)
 	RET
 tail_out_3:
-	// PEXTRW $2, X1, 4(DI)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x4f; BYTE $0x04; BYTE $0x02
+	PEXTRB $5, X1, 5(DI)
+	PEXTRB $4, X1, 4(DI)
 tail_out_2:
-	// PEXTRW $1, X1, 2(DI)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x4f; BYTE $0x02; BYTE $0x01
+	PEXTRB $3, X1, 3(DI)
+	PEXTRB $2, X1, 2(DI)
 tail_out_1:
-	// PEXTRW $0, X1, (DI)
-	BYTE $0x66; BYTE $0x0f; BYTE $0x3a; BYTE $0x15; BYTE $0x0f; BYTE $0x00
+	PEXTRB $1, X1, 1(DI)
+	PEXTRB $0, X1, (DI)
 ret:
 	RET
 bigloop_sse:

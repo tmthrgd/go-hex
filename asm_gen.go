@@ -242,7 +242,8 @@ func encodeASM(a *asm.Asm) {
 
 	for i := 7; i >= 5; i-- {
 		a.Label(tailOut[i])
-		a.Pextrw(asm.Address(e.di, (i-1)*2), asm.X1, asm.Constant(i-1))
+		a.Pextrb(asm.Address(e.di, (i-1)*2+1), asm.X1, asm.Constant((i-1)*2+1))
+		a.Pextrb(asm.Address(e.di, (i-1)*2+0), asm.X1, asm.Constant((i-1)*2+0))
 	}
 
 	a.Label(tailOut[4])
@@ -251,7 +252,8 @@ func encodeASM(a *asm.Asm) {
 
 	for i := 3; i >= 1; i-- {
 		a.Label(tailOut[i])
-		a.Pextrw(asm.Address(e.di, (i-1)*2), asm.X1, asm.Constant(i-1))
+		a.Pextrb(asm.Address(e.di, (i-1)*2+1), asm.X1, asm.Constant((i-1)*2+1))
+		a.Pextrb(asm.Address(e.di, (i-1)*2+0), asm.X1, asm.Constant((i-1)*2+0))
 	}
 
 	a.Label(ret)
