@@ -33,8 +33,7 @@ bigloop_avx:
 	VPAND encodeMask<>(SB), X0, X1
 	PSRLW $4, X0
 	PAND encodeMask<>(SB), X0
-	// VPUNPCKHBW X1, X0, X3
-	BYTE $0xc5; BYTE $0xf9; BYTE $0x68; BYTE $0xd9
+	VPUNPCKHBW X1, X0, X3
 	PUNPCKLBW X1, X0
 	VPSHUFB X0, X15, X1
 	VPSHUFB X3, X15, X2

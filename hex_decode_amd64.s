@@ -63,11 +63,9 @@ bigloop_avx:
 	VPXOR decodeToSigned<>(SB), X0, X1
 	POR decodeToLower<>(SB), X0
 	VPXOR decodeToSigned<>(SB), X0, X2
-	// VPCMPGTB X1, X14, X3
-	BYTE $0xc5; BYTE $0x89; BYTE $0x64; BYTE $0xd9
+	VPCMPGTB X1, X14, X3
 	PCMPGTB decodeValid<>+0x10(SB), X1
-	// VPCMPGTB X2, X15, X4
-	BYTE $0xc5; BYTE $0x81; BYTE $0x64; BYTE $0xe2
+	VPCMPGTB X2, X15, X4
 	PCMPGTB decodeValid<>+0x30(SB), X2
 	PAND X4, X1
 	POR X2, X3
