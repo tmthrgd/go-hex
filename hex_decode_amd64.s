@@ -56,7 +56,7 @@ TEXT ·decodeASM(SB),NOSPLIT,$0
 	MOVW $65535, DX
 	CMPQ BX, $16
 	JB tail
-	CMPB runtime·support_avx(SB), $1
+	CMPB ·support_avx(SB), $1
 	JNE bigloop_sse
 bigloop_avx:
 	MOVOU (SI), X0

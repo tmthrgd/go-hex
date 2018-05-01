@@ -26,7 +26,7 @@ TEXT ·encodeASM(SB),NOSPLIT,$0
 	MOVOU (DX), X15
 	CMPQ BX, $16
 	JB tail
-	CMPB runtime·support_avx(SB), $1
+	CMPB ·support_avx(SB), $1
 	JNE bigloop_sse
 bigloop_avx:
 	MOVOU -16(SI)(BX*1), X0

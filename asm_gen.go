@@ -173,7 +173,7 @@ func encodeASM(a *asm.Asm) {
 	a.Cmpq(asm.Constant(16), e.cx)
 	a.Jb(tail)
 
-	a.Cmpb(asm.Constant(1), asm.Data("runtime·support_avx"))
+	a.Cmpb(asm.Constant(1), asm.Data("·support_avx"))
 	a.Jne(bigloop_sse)
 
 	e.BigLoop(bigloop_avx, a.Vpand, a.Vpunpckhbw, a.Vpshufb)
@@ -434,7 +434,7 @@ func decodeASM(a *asm.Asm) {
 	a.Cmpq(asm.Constant(16), d.cx)
 	a.Jb(tail)
 
-	a.Cmpb(asm.Constant(1), asm.Data("runtime·support_avx"))
+	a.Cmpb(asm.Constant(1), asm.Data("·support_avx"))
 	a.Jne(bigloop_sse)
 
 	d.BigLoop(bigloop_avx, a.Vpxor, a.Vpcmpgtb, a.Vpshufb)
