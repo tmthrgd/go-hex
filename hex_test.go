@@ -234,7 +234,7 @@ func BenchmarkDecode(b *testing.B) {
 	}
 }
 
-func benchmarkRefDecode(b *testing.B, l int) {
+func BenchmarkRefDecode(b *testing.B) {
 	for _, size := range decodeSize {
 		b.Run(size.name, func(b *testing.B) {
 			m := ref.DecodedLen(size.l)
